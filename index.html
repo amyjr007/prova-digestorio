@@ -31,6 +31,9 @@
   --ok-wash:#E4F1EA;
   --no:#B3261E;
   --no-wash:#F8E7E5;
+  --pick:#177A4E;
+  --pick-wash:#E2F2E9;
+  --pick-ink:#FFFFFF;
   --shadow:0 1px 2px rgba(25,26,34,.05), 0 12px 32px -12px rgba(25,26,34,.18);
   --serif:Georgia,"Times New Roman",Times,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -45,6 +48,7 @@
     --crest:#E0656B;
     --ok:#6FD3A4; --ok-wash:#16281F;
     --no:#F09189; --no-wash:#2B1817;
+    --pick:#4FBE8B; --pick-wash:#152C22; --pick-ink:#0C1A13;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
   }
 }
@@ -55,6 +59,7 @@
   --accent:#1D3FA0; --accent-ink:#FFFFFF; --accent-wash:#E5EAF7;
   --crest:#A31E28;
   --ok:#1B6B4C; --ok-wash:#E4F1EA; --no:#B3261E; --no-wash:#F8E7E5;
+  --pick:#177A4E; --pick-wash:#E2F2E9; --pick-ink:#FFFFFF;
   --shadow:0 1px 2px rgba(25,26,34,.05), 0 12px 32px -12px rgba(25,26,34,.18);
 }
 :root[data-theme="dark"]{
@@ -64,6 +69,7 @@
   --accent:#93AEF5; --accent-ink:#10121A; --accent-wash:#1E2740;
   --crest:#E0656B;
   --ok:#6FD3A4; --ok-wash:#16281F; --no:#F09189; --no-wash:#2B1817;
+  --pick:#4FBE8B; --pick-wash:#152C22; --pick-ink:#0C1A13;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
 }
 
@@ -235,37 +241,33 @@ button{font:inherit; color:inherit}
 
 .opts{display:flex; flex-direction:column; gap:.55rem}
 .opt{
-  display:flex; gap:.6rem; align-items:flex-start; width:100%; text-align:left;
+  display:flex; gap:.7rem; align-items:center; width:100%; text-align:left;
   background:var(--sheet-2); border:1px solid var(--line); border-radius:2px;
   padding:.8rem .9rem; cursor:pointer; line-height:1.4;
-  transition:background .14s ease, border-color .14s ease;
+  transition:background .16s ease, border-color .16s ease, color .16s ease;
 }
-.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-wash)}
+.opt:hover:not(:disabled):not([aria-checked="true"]){border-color:var(--pick); background:var(--pick-wash)}
 .opt:disabled{cursor:default}
-.mark{
+.opt-letter{
+  flex:0 0 auto; width:1.85rem; height:1.85rem; border-radius:3px;
   display:inline-flex; align-items:center; justify-content:center;
-  font-family:var(--mono); color:var(--ink-faint); flex:0 0 auto; position:relative;
-  width:1.7rem; height:1.5rem; font-size:1.1rem;
+  font-weight:700; font-size:.88rem; color:var(--ink-soft);
+  background:var(--sheet); border:1px solid var(--line);
+  transition:background .16s ease, border-color .16s ease, color .16s ease;
 }
-.mark::before{content:"("; position:absolute; left:0}
-.mark::after{content:")"; position:absolute; right:0}
-.mark svg{width:1rem; height:1rem; overflow:visible}
-.mark svg path{
-  fill:none; stroke:var(--accent); stroke-width:2.6; stroke-linecap:round;
-  stroke-dasharray:22; stroke-dashoffset:22;
-}
-.opt[aria-checked="true"] .mark svg path{animation:draw .22s ease forwards}
-.opt[aria-checked="true"] .mark svg path:nth-child(2){animation-delay:.1s}
-@keyframes draw{to{stroke-dashoffset:0}}
-.opt[aria-checked="true"]{border-color:var(--accent); background:var(--accent-wash)}
-.opt-letter{font-weight:700; color:var(--ink-soft); flex:0 0 auto}
-.opt[aria-checked="true"] .opt-letter{color:var(--accent)}
+.opt-text{flex:1 1 auto; min-width:0}
 
-/* resposta travada: a caneta "preenche" a alternativa escolhida */
-.opt.locked{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
-.opt.locked .opt-letter{color:var(--accent-ink)}
-.opt.locked .mark{color:var(--accent-ink); animation:stamp .34s cubic-bezier(.3,1.4,.5,1)}
-.opt.locked .mark svg path{stroke:var(--accent-ink); stroke-dashoffset:0}
+/* escolhida pelo aluno: fica verde */
+.opt[aria-checked="true"]{border-color:var(--pick); background:var(--pick-wash)}
+.opt[aria-checked="true"] .opt-letter{background:var(--pick); border-color:var(--pick); color:var(--pick-ink)}
+
+/* confirmada: verde preenchido */
+.opt.locked{
+  background:var(--pick); border-color:var(--pick); color:var(--pick-ink);
+  animation:firmar .34s cubic-bezier(.3,1.5,.5,1);
+}
+.opt.locked .opt-letter{background:transparent; border-color:currentColor; color:inherit}
+@keyframes firmar{0%{transform:scale(1)} 42%{transform:scale(1.025)} 100%{transform:scale(1)}}
 
 /* passagem de questão: o cartão é "engolido" e o próximo desce pelo tubo */
 .qcard.swallow{animation:swallow .5s cubic-bezier(.5,.02,.7,.2) forwards}
@@ -277,7 +279,6 @@ button{font:inherit; color:inherit}
 .qcard.arrive .opt:nth-child(4){animation-delay:.28s}
 .qcard.arrive .qhead{animation:optIn .3s ease backwards}
 
-@keyframes stamp{0%{transform:scale(1)} 45%{transform:scale(1.4) rotate(-6deg)} 100%{transform:scale(1)}}
 @keyframes swallow{
   0%  {transform:translateY(0) scale(1,1); opacity:1}
   28% {transform:translateY(4px) scale(.93,1.06); opacity:1}
@@ -322,8 +323,6 @@ kbd{
 .rev-a{margin-top:.4rem; font-size:.88rem; display:flex; flex-direction:column; gap:.15rem}
 .tag{font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:.66rem; margin-right:.35rem}
 .tag.ok{color:var(--ok)} .tag.no{color:var(--no)}
-.actions{display:flex; gap:.7rem; flex-wrap:wrap}
-.actions .btn{flex:1 1 12rem}
 details.gab summary{
   cursor:pointer; font-weight:650; color:var(--accent); padding:.6rem 0;
   border-top:1px solid var(--line-soft); list-style:none;
@@ -422,19 +421,12 @@ details.gab[open] summary::before{content:"▾ "}
         <label for="fSerie">Série/Ano <span class="opt-tag">(opcional)</span></label>
         <input id="fSerie" name="serie" type="text" placeholder="Ex.: 8º ano">
       </div>
-    </div>
-
-    <div class="grid-2">
       <div class="field">
         <label for="fTurno">Turno <span class="opt-tag">(opcional)</span></label>
         <select id="fTurno" name="turno">
           <option value="">Selecione</option>
           <option>Manhã</option><option>Tarde</option><option>Noite</option>
         </select>
-      </div>
-      <div class="field">
-        <label for="fProf">Professor(a) <span class="opt-tag">(opcional)</span></label>
-        <input id="fProf" name="prof" type="text" placeholder="Nome do professor(a)">
       </div>
     </div>
 
@@ -497,11 +489,6 @@ details.gab[open] summary::before{content:"▾ "}
       <summary>Ver gabarito e minhas respostas</summary>
       <div class="review" id="review"></div>
     </details>
-
-    <div class="actions no-print">
-      <button class="btn btn-ghost" id="btnPrint">Imprimir / salvar em PDF</button>
-      <button class="btn" id="btnRestart">Nova avaliação</button>
-    </div>
 
     <p class="sig">Escola Estadual Feliz Lusitânia · SEDUC-PARÁ<br>
       Documento gerado pelo aplicativo de avaliação — confira com o(a) professor(a).</p>
@@ -615,7 +602,7 @@ const QUESTOES = [
     o:["a epiglote.","o diafragma.","o apêndice.","a vesícula biliar."], r:0 }
 ];
 
-const LETRAS = ["a","b","c","d"];
+const LETRAS = ["A","B","C","D"];
 const VALOR = 0.5;
 
 const $ = (id) => document.getElementById(id);
@@ -667,6 +654,35 @@ let versao = codigoVersao(PROVA);
 const semMovimento = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ---- som do resultado ----
+   Sintetizado na hora pela Web Audio API: não depende de arquivo, não pesa no
+   carregamento e toca offline. O contexto precisa nascer de um toque do aluno,
+   por isso é criado no botão "Iniciar avaliação". */
+let audio = null;
+function prepararSom(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(audio || !AC) return;
+  try { audio = new AC(); } catch(e) { audio = null; }
+}
+function tocarResultado(){
+  if(!audio) return;
+  if(audio.state === "suspended") audio.resume();
+  const t0 = audio.currentTime + 0.03;
+  [523.25, 659.25, 783.99, 1046.50].forEach((hz, i) => {   // dó · mi · sol · dó
+    const osc = audio.createOscillator();
+    const vol = audio.createGain();
+    const ini = t0 + i * 0.12;
+    const dur = (i === 3) ? 1.1 : 0.42;
+    osc.type = "triangle";
+    osc.frequency.value = hz;
+    vol.gain.setValueAtTime(0.0001, ini);
+    vol.gain.exponentialRampToValueAtTime(0.15, ini + 0.03);
+    vol.gain.exponentialRampToValueAtTime(0.0001, ini + dur);
+    osc.connect(vol); vol.connect(audio.destination);
+    osc.start(ini); osc.stop(ini + dur + 0.05);
+  });
+}
+
 function show(name){
   screens.forEach(s => $(s).hidden = (s !== name));
   window.scrollTo({top:0, behavior:"instant"});
@@ -708,7 +724,11 @@ function hoje(){
 /* ---- capa ---- */
 $("coverDate").textContent = hoje();
 $("coverCode").textContent = versao;
-$("btnStart").addEventListener("click", () => { show("identify"); $("fNome").focus(); });
+$("btnStart").addEventListener("click", () => {
+  prepararSom();                       // gesto do aluno: libera o áudio no Chrome
+  show("identify");
+  $("fNome").focus();
+});
 
 /* ---- identificação ---- */
 $("formId").addEventListener("submit", (e) => {
@@ -725,7 +745,6 @@ $("formId").addEventListener("submit", (e) => {
     nome, turma,
     serie: $("fSerie").value.trim(),
     turno: $("fTurno").value,
-    prof:  $("fProf").value.trim(),
     data:  hoje()
   };
   $("who").textContent = nome + " · " + turma;
@@ -754,10 +773,7 @@ function render(){
     b.setAttribute("role","radio");
     b.setAttribute("aria-checked","false");
     b.innerHTML =
-      '<span class="mark" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>' +
-      '</span>' +
-      '<span class="opt-letter">' + LETRAS[i] + ')</span>' +
+      '<span class="opt-letter" aria-hidden="true">' + LETRAS[i] + '</span>' +
       '<span class="opt-text"></span>';
     b.querySelector(".opt-text").textContent = texto;
     b.addEventListener("click", () => selecionar(i));
@@ -810,8 +826,7 @@ $("btnAction").addEventListener("click", confirmar);
 
 document.addEventListener("keydown", (e) => {
   if($("quiz").hidden) return;
-  const k = e.key.toLowerCase();
-  const i = LETRAS.indexOf(k);
+  const i = LETRAS.indexOf(e.key.toUpperCase());
   if(i !== -1){ e.preventDefault(); selecionar(i); return; }
   if(e.key === "Enter" && !$("btnAction").disabled){ e.preventDefault(); $("btnAction").click(); }
 });
@@ -833,7 +848,6 @@ function finalizar(){
     ["Turma", aluno.turma],
     ["Série/Ano", aluno.serie],
     ["Turno", aluno.turno],
-    ["Professor(a)", aluno.prof],
     ["Data", aluno.data],
     ["Versão da prova", versao]
   ].filter(([, v]) => v);
@@ -869,9 +883,9 @@ function finalizar(){
   });
 
   show("result");
+  tocarResultado();
 }
 
-$("btnPrint").addEventListener("click", () => window.print());
 /* ---- PWA: instalação e funcionamento offline ----
    O service worker só roda em http(s). Abrindo o arquivo direto do disco
    (file://) a prova funciona igual, apenas sem instalar e sem cache. */
@@ -905,16 +919,6 @@ $("btnInstall").addEventListener("click", async () => {
   promptInstalar = null;
 });
 window.addEventListener("appinstalled", () => { $("btnInstall").hidden = true; });
-
-$("btnRestart").addEventListener("click", () => {
-  idx = 0; escolha = null; travado = false;
-  respostas.fill(null);
-  PROVA = montarProva();              // novo sorteio para o próximo aluno
-  versao = codigoVersao(PROVA);
-  $("coverCode").textContent = versao;
-  $("formId").reset();
-  show("cover");
-});
 </script>
 </body>
 </html>
