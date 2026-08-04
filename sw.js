@@ -1,7 +1,7 @@
 ﻿/* Service worker da 2ª Avaliação de Ciências — E.E. Feliz Lusitânia.
    Ao publicar uma versão nova da prova, troque o número em CACHE: é ele que
    descarta o pacote antigo e obriga os Chromebooks a baixar o conteúdo novo. */
-const CACHE = "prova-fl-v3";
+const CACHE = "prova-fl-v4";
 
 const ARQUIVOS = [
   "./",

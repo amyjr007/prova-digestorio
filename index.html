@@ -210,7 +210,7 @@ button{font:inherit; color:inherit}
 /* ---------- identify ---------- */
 .form-inner{padding:clamp(1.25rem,4vw,2.5rem); display:flex; flex-direction:column; gap:1.5rem}
 .field{display:flex; flex-direction:column; gap:.35rem}
-.field label{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--ink-faint)}
+.field label,.field .lbl{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--ink-faint)}
 .field .opt-tag{text-transform:none; letter-spacing:0; font-weight:500; color:var(--ink-faint)}
 .field input, .field select{
   font:inherit; color:var(--ink); background:var(--sheet-2);
@@ -218,8 +218,35 @@ button{font:inherit; color:inherit}
   border-radius:2px; padding:.7rem .8rem;
 }
 .field input:focus, .field select:focus{border-bottom-color:var(--accent); outline-offset:0}
-.grid-2{display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:1.1rem}
 .form-err{color:var(--no); font-size:.9rem; min-height:1.2em}
+
+/* ---------- carrossel de turma e turno ----------
+   Trilho que desliza no toque, com setas para o teclado e para o trackpad.
+   As setas somem sozinhas quando tudo já cabe na largura disponível. */
+.carrossel{display:flex; align-items:center; gap:.4rem}
+.car-trilho{
+  flex:1 1 auto; display:flex; gap:.5rem; padding:.2rem;
+  overflow-x:auto; scroll-snap-type:x proximity; scroll-behavior:smooth;
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.car-trilho::-webkit-scrollbar{display:none}
+.car-item{
+  flex:0 0 auto; scroll-snap-align:center; cursor:pointer; white-space:nowrap;
+  padding:.75rem 1.15rem; border-radius:3px; font-weight:600;
+  background:var(--sheet-2); border:1px solid var(--line); color:var(--ink-soft);
+  transition:background .16s ease, border-color .16s ease, color .16s ease;
+}
+#carTurma .car-item{font-family:var(--mono); letter-spacing:.05em}
+.car-item:hover:not([aria-checked="true"]){border-color:var(--pick); background:var(--pick-wash)}
+.car-item[aria-checked="true"]{background:var(--pick); border-color:var(--pick); color:var(--pick-ink)}
+.car-seta{
+  flex:0 0 auto; width:2.1rem; height:2.1rem; border-radius:3px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--sheet-2); border:1px solid var(--line); color:var(--ink-soft);
+  font-size:1.25rem; line-height:1;
+}
+.car-seta:hover{border-color:var(--accent); color:var(--accent)}
+.car-seta[hidden]{display:none}
 
 /* ---------- quiz ---------- */
 .rail{
@@ -236,22 +263,22 @@ button{font:inherit; color:inherit}
 
 .qcard{padding:clamp(1.25rem,4vw,2.25rem); display:flex; flex-direction:column; gap:1.4rem; border-radius:0 0 3px 3px}
 .qhead{display:flex; gap:.7rem; align-items:baseline}
-.qnum{font-family:var(--serif); font-weight:700; font-size:1.35rem; color:var(--crest); line-height:1.2}
-.qtext{font-size:1.12rem; line-height:1.45; font-weight:500}
+.qnum{font-family:var(--serif); font-weight:700; font-size:1.62rem; color:var(--crest); line-height:1.2}
+.qtext{font-size:1.34rem; line-height:1.45; font-weight:500}
 
 .opts{display:flex; flex-direction:column; gap:.55rem}
 .opt{
   display:flex; gap:.7rem; align-items:center; width:100%; text-align:left;
   background:var(--sheet-2); border:1px solid var(--line); border-radius:2px;
-  padding:.8rem .9rem; cursor:pointer; line-height:1.4;
+  padding:.85rem .95rem; cursor:pointer; line-height:1.4; font-size:1.2rem;
   transition:background .16s ease, border-color .16s ease, color .16s ease;
 }
 .opt:hover:not(:disabled):not([aria-checked="true"]){border-color:var(--pick); background:var(--pick-wash)}
 .opt:disabled{cursor:default}
 .opt-letter{
-  flex:0 0 auto; width:1.85rem; height:1.85rem; border-radius:3px;
+  flex:0 0 auto; width:2.15rem; height:2.15rem; border-radius:3px;
   display:inline-flex; align-items:center; justify-content:center;
-  font-weight:700; font-size:.88rem; color:var(--ink-soft);
+  font-weight:700; font-size:1.05rem; color:var(--ink-soft);
   background:var(--sheet); border:1px solid var(--line);
   transition:background .16s ease, border-color .16s ease, color .16s ease;
 }
@@ -412,21 +439,21 @@ details.gab[open] summary::before{content:"▾ "}
       <input id="fNome" name="nome" type="text" autocomplete="name" placeholder="Nome completo" required>
     </div>
 
-    <div class="grid-2">
-      <div class="field">
-        <label for="fTurma">Turma</label>
-        <input id="fTurma" name="turma" type="text" placeholder="Ex.: 8º B" required>
+    <div class="field">
+      <span class="lbl" id="lblTurma">Turma</span>
+      <div class="carrossel">
+        <button type="button" class="car-seta" data-dir="-1" aria-label="Ver turmas anteriores">‹</button>
+        <div class="car-trilho" id="carTurma" role="radiogroup" aria-labelledby="lblTurma"></div>
+        <button type="button" class="car-seta" data-dir="1" aria-label="Ver próximas turmas">›</button>
       </div>
-      <div class="field">
-        <label for="fSerie">Série/Ano <span class="opt-tag">(opcional)</span></label>
-        <input id="fSerie" name="serie" type="text" placeholder="Ex.: 8º ano">
-      </div>
-      <div class="field">
-        <label for="fTurno">Turno <span class="opt-tag">(opcional)</span></label>
-        <select id="fTurno" name="turno">
-          <option value="">Selecione</option>
-          <option>Manhã</option><option>Tarde</option><option>Noite</option>
-        </select>
+    </div>
+
+    <div class="field">
+      <span class="lbl" id="lblTurno">Turno <span class="opt-tag">(opcional)</span></span>
+      <div class="carrossel">
+        <button type="button" class="car-seta" data-dir="-1" aria-label="Turno anterior">‹</button>
+        <div class="car-trilho" id="carTurno" role="radiogroup" aria-labelledby="lblTurno"></div>
+        <button type="button" class="car-seta" data-dir="1" aria-label="Próximo turno">›</button>
       </div>
     </div>
 
@@ -718,24 +745,79 @@ $("coverCode").textContent = versao;
 $("btnStart").addEventListener("click", () => {
   prepararSom();                       // gesto do aluno: libera o áudio no Chrome
   show("identify");
+  ajustarSetas();                      // só agora os trilhos têm largura medível
   $("fNome").focus();
 });
 
 /* ---- identificação ---- */
+const TURMAS = ["F8M901","F8M902","F8M903","F8T901","F8T902"];
+const TURNOS = ["Manhã","Tarde"];
+const escolhido = { turma:"", turno:"" };
+
+function montarCarrossel(idTrilho, valores, aoEscolher){
+  const trilho = $(idTrilho);
+  trilho.innerHTML = "";
+  valores.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "car-item";
+    b.setAttribute("role","radio");
+    b.setAttribute("aria-checked","false");
+    b.textContent = v;
+    b.addEventListener("click", () => { marcarCarrossel(idTrilho, v); aoEscolher(v); });
+    trilho.appendChild(b);
+  });
+}
+
+function marcarCarrossel(idTrilho, valor){
+  [...$(idTrilho).children].forEach(el => {
+    const ativo = el.textContent === valor;
+    el.setAttribute("aria-checked", ativo ? "true" : "false");
+    if(ativo) el.scrollIntoView({block:"nearest", inline:"center", behavior:"smooth"});
+  });
+}
+
+// as setas só aparecem quando o trilho não cabe inteiro na tela
+function ajustarSetas(){
+  document.querySelectorAll(".carrossel").forEach(c => {
+    const t = c.querySelector(".car-trilho");
+    const transborda = t.scrollWidth > t.clientWidth + 2;
+    c.querySelectorAll(".car-seta").forEach(s => { s.hidden = !transborda; });
+  });
+}
+
+document.querySelectorAll(".car-seta").forEach(seta => {
+  seta.addEventListener("click", () => {
+    const t = seta.parentElement.querySelector(".car-trilho");
+    t.scrollBy({left: Number(seta.dataset.dir) * t.clientWidth * 0.7, behavior:"smooth"});
+  });
+});
+
+montarCarrossel("carTurma", TURMAS, (v) => {
+  escolhido.turma = v;
+  // F8M901 → manhã, F8T901 → tarde: a letra do código já diz o turno
+  const auto = v.charAt(2) === "M" ? "Manhã" : (v.charAt(2) === "T" ? "Tarde" : "");
+  if(auto){ escolhido.turno = auto; marcarCarrossel("carTurno", auto); }
+});
+montarCarrossel("carTurno", TURNOS, (v) => { escolhido.turno = v; });
+ajustarSetas();
+window.addEventListener("resize", ajustarSetas);
+
 $("formId").addEventListener("submit", (e) => {
   e.preventDefault();
   const nome = $("fNome").value.trim();
-  const turma = $("fTurma").value.trim();
-  if(!nome || !turma){
-    $("formErr").textContent = "Preencha o nome e a turma para continuar.";
-    (!nome ? $("fNome") : $("fTurma")).focus();
+  if(!nome || !escolhido.turma){
+    $("formErr").textContent = !nome
+      ? "Digite o nome do aluno para continuar."
+      : "Escolha a turma para continuar.";
+    if(!nome) $("fNome").focus();
     return;
   }
   $("formErr").textContent = "";
   aluno = {
-    nome, turma,
-    serie: $("fSerie").value.trim(),
-    turno: $("fTurno").value,
+    nome,
+    turma: escolhido.turma,
+    turno: escolhido.turno,
     data:  hoje()
   };
   $("who").textContent = nome + " · " + turma;
@@ -837,7 +919,6 @@ function finalizar(){
   const campos = [
     ["Aluno(a)", aluno.nome],
     ["Turma", aluno.turma],
-    ["Série/Ano", aluno.serie],
     ["Turno", aluno.turno],
     ["Data", aluno.data],
     ["Versão da prova", versao]
