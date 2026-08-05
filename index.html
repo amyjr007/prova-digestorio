@@ -820,7 +820,7 @@ $("formId").addEventListener("submit", (e) => {
     turno: escolhido.turno,
     data:  hoje()
   };
-  $("who").textContent = nome + " · " + turma;
+  $("who").textContent = nome + " · " + escolhido.turma;
   window.addEventListener("beforeunload", guard);
   empurrar("identify", "quiz", render);
 });
